@@ -1,0 +1,37 @@
+﻿基础信息表：
+id:20170809001  日期+竞彩官方的比赛顺序
+okid:957024 隐藏与页面上，澳客网生成的IDhttp://www.okooo.com/soccer/match/957024/odds/
+gametime: YYYYMMDD HH:MM:SS 
+lg:比赛类别
+hmname:主队名称
+ayname:客队名称
+season:赛季，如：俄超 17/18，挪威杯 2017
+gamerule:赛制，如 小组赛_C组 或淘汰赛
+round：轮次。如：第1轮 1/8决赛
+field：比赛场地 如：伯南布哥竞技场
+weather：天气 如：小雨
+temperature：温度 如：26℃～27℃
+h_t_w: 主队总胜场次
+h_t_d: 主队总平场次
+h_t_l: 主队总负场次
+h_t_s: 主队总积分
+h_t_o: 主队总排名
+h_h_w: 主队主场胜场次
+h_h_d: 主队主场平场次
+h_h_l: 主队主场负场次
+h_h_s: 主队主场积分
+h_h_o: 主队主场排名
+a_t_w: 客队总胜场次
+a_t_d: 客队总平场次
+a_t_l: 客队总负场次
+a_t_s: 客队总积分
+a_t_o: 客队总排名
+a_a_w: 客队客场胜场次
+a_a_d: 客队客场平场次
+a_a_l: 客队客场负场次
+a_a_s: 客队客场积分
+a_a_o: 客队客场排名
+hscore: 主队进球数
+ascore: 客队进球数
+h_hs:  半场主队进球数
+h_as:  半场客队进球数
