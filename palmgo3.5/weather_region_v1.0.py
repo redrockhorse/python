@@ -14,6 +14,7 @@ import collections
 
 # 使用时需要修改的部分
 weather_kml = 'E:\\desktop\\aaa\\2017102408.kml'
+#weather_kml = 'E:\\desktop\\aaa\\44297.kml'
 link_mid = 'E:\\desktop\\aaa\\FCD_1000_16Q2_SN.MID'
 link_mif = 'E:\\desktop\\aaa\\FCD_1000_16Q2_SN.MIF'
 southWest = [69.385045, 16.720233]
@@ -187,13 +188,15 @@ def getInterrupted(array):
             interruptePoint.append([array[i], array[i + 1]])
     return interruptePoint
 
+
 class Point(object):
-    x =0
-    y= 0
+    x = 0
+    y = 0
     # 定义构造方法
     def __init__(self, x=0, y=0):
         self.x = x
         self.y = y
+
 
 class Line(object):
     # a=0
@@ -203,20 +206,25 @@ class Line(object):
         self.p1 = p1
         self.p2 = p2
 
-def getLinePara(line):
-    line.a =line.p1.y - line.p2.y;
-    line.b = line.p2.x - line.p1.x;
-    line.c = line.p1.x *line.p2.y - line.p2.x * line.p1.y;
 
-#求两条直线交点坐标
-def getCrossPoint(l1,l2):
+def getLinePara(line):
+    line.a = line.p1.y - line.p2.y;
+    line.b = line.p2.x - line.p1.x;
+    line.c = line.p1.x * line.p2.y - line.p2.x * line.p1.y;
+
+
+# 求两条直线交点坐标
+def getCrossPoint(l1, l2):
     getLinePara(l1);
     getLinePara(l2);
     d = l1.a * l2.b - l2.a * l1.b
-    p=Point()
-    p.x = (l1.b * l2.c - l2.b * l1.c)*1.0 / d
-    p.y = (l1.c * l2.a - l2.c * l1.a)*1.0 / d
+    if d == 0.0:
+        return  None
+    p = Point()
+    p.x = (l1.b * l2.c - l2.b * l1.c) * 1.0 / d
+    p.y = (l1.c * l2.a - l2.c * l1.a) * 1.0 / d
     return p;
+
 
 # 处理凸多边形，将中间空白的格网填充起来.
 def fill_weather_blank_grids(input_path, mid_mif_dic, index_3_dic, output_path):
@@ -226,7 +234,7 @@ def fill_weather_blank_grids(input_path, mid_mif_dic, index_3_dic, output_path):
             items = line.strip('\n').split(',')
             pline_id = items[0]
             pline_points = mid_mif_dic[pline_id]
-            #pline_points.pop()
+            # pline_points.pop()
             cx = items[1]
             cx_mid_line = southWest[0] + (int(cx) + 0.5) * gridLen
             output.write(pline_id + ',' + cx + ',')
@@ -236,7 +244,9 @@ def fill_weather_blank_grids(input_path, mid_mif_dic, index_3_dic, output_path):
             # cys = fillInterrupted(cys)
             iarr = getInterrupted(cys)
             y_cross_dic = collections.OrderedDict()
-            for i in range(len(cys)-1):
+            point_no_cross_dic = collections.OrderedDict()
+            cross_y_list =[]
+            for i in range(len(cys) - 1):
                 y = cys[i]
                 plink_list = index_3_dic[cx + '\t' + str(y)]
                 y_cross = 0
@@ -244,23 +254,38 @@ def fill_weather_blank_grids(input_path, mid_mif_dic, index_3_dic, output_path):
                 for link in plink_list:
                     if pline_id.split('_')[0] == link.split('_')[0]:
                         point_no = link.split('_')[-1]
-                        if int(point_no)> len(pline_points)-1:
-                            print('link',link)
-                            print('pline_id: ',pline_id)
-                            print('point_no',point_no)
-                            print('pline_points',pline_points)
-                        p0 = pline_points[int(point_no)%m_l]
-                        p1 = pline_points[int(point_no)%m_l + 1]
+                        p0 = pline_points[int(point_no) % m_l]
+                        p1 = pline_points[int(point_no) % m_l + 1]
                         x0 = float(p0.split()[0])
                         x1 = float(p1.split()[0])
+                        y0 = float(p0.split()[1])
+                        y1 = float(p1.split()[1])
                         if cx_mid_line > min(x0, x1) and cx_mid_line < max(x0, x1):
-                            y_cross += 1
+                            point0 = Point(x0, y0)
+                            point1 = Point(x1, y1)
+                            line_c = Line(point0, point1)
+                            point_m_0 = Point(cx_mid_line, y0)
+                            point_m_1 = Point(cx_mid_line, y1)
+                            line_m = Line(point_m_0, point_m_1)
+                            cross_p = getCrossPoint(line_c, line_m)
+                            if cross_p is not None:
+                                cross_y = int((cross_p.y - southWest[1])/gridLen)
+                                point_no_cross_dic[point_no] = cross_y
+                                #cross_y_list.append(cross_y)
                 if i == 0:
                     y_cross_dic[y] = y_cross
                 else:
-                    y_cross_dic[y] = y_cross_dic[cys[i-1]]+y_cross
+                    y_cross_dic[y] = y_cross_dic[cys[i-1]] + y_cross
+            for key in point_no_cross_dic:
+                cross_y_list.append(point_no_cross_dic[key])
+            for i in range(len(cys) - 1):
+                y = cys[i]
+                if i==0:
+                    y_cross_dic[y] = cross_y_list.count(y)
+                else:
+                    y_cross_dic[y] = y_cross_dic[cys[i-1]] + cross_y_list.count(y)
             for iy in iarr:
-                if y_cross_dic[iy[0]] %2 != 0:
+                if y_cross_dic[iy[0]] % 2 != 0:
                     ys_tmp = cys.index(iy[0]) + 1
                     for a in range(iy[0] + 1, iy[1]):
                         cys.insert(ys_tmp, a)
@@ -272,80 +297,6 @@ def fill_weather_blank_grids(input_path, mid_mif_dic, index_3_dic, output_path):
     output.close()
 
 
-'''
-# 处理凸多边形，将中间空白的格网填充起来.
-def fill_weather_blank_grids(input_path, index_3_dic, output_path):
-    output = open(output_path, 'w')
-    with open(input_path, 'r') as f:
-
-        for line in f:
-            items = line.strip('\n').split(',')
-            pline_id = items[0]
-            cx = items[1]
-            cx_mid_line = southWest[0] + (int(cx) + 0.5) * gridLen
-            output.write(pline_id + ',' + cx + ',')
-            cys = items[2].split('|')
-            cys.pop()
-            cys = list(map(lambda x: int(x), cys))
-            #cys = fillInterrupted(cys)
-            #iarr = getInterrupted(cys)
-            for y in range(cys[0],cys[-1]):
-                if y in cys:
-                    plink_list = index_3_dic[cx+'\t'+str(y)]
-                    for link in plink_list:
-
-
-            for cy in cys:
-                output.write(str(cy) + '|')
-            output.write('\n')
-    f.close()
-    output.close()
-
-def fill_weather_blank_grids(input_path, output_path):
-    output = open(output_path, 'w')
-    with open(input_path, 'r') as f:
-
-        for line in f:
-
-            items = line.strip('\n').split(',')
-
-            pline_id = items[0]
-            cx = items[1]
-
-            output.write(pline_id + ',' + cx + ',')
-
-            cys = items[2].split('|')
-
-            is_good_blank = True
-            for j in range(len(cys) - 2):
-                pre_cy = int(cys[j])
-
-                if j == 0:
-                    output.write('{:d}'.format(pre_cy) + '|')
-
-                next_cy = int(cys[j + 1])
-
-                if next_cy != pre_cy + 1:
-                    if is_good_blank == True:
-
-                        for i in range(next_cy - pre_cy):
-                            output.write('{:d}'.format(i + pre_cy + 1) + '|')
-
-                        is_good_blank = False
-
-                    elif is_good_blank == False:
-
-                        output.write('{:d}'.format(next_cy) + '|')
-                        is_good_blank = True
-
-                else:
-                    output.write('{:d}'.format(next_cy) + '|')
-
-            output.write('\n')
-
-    f.close()
-    output.close()
-'''
 
 
 # 读取路网索引文件.
@@ -508,6 +459,23 @@ def label_map_mid_file(input_path, output_path, dict_links_labels):
 
 
 if __name__ == "__main__":
+    '''
+    mid_mif_dic = create_map_file_by_kml(weather_kml)
+    createIndexFileByMap(weather_kml.replace('.kml', '.mid'), weather_kml.replace('.kml', '.mif'), 2, 6,
+                             weather_kml.replace('.kml', '') + '_indexer.txt', southWest, northEast, gridLen, 2)
+    index_3_dic = createIndexFileByMap(weather_kml.replace('.kml', '.mid'), weather_kml.replace('.kml', '.mif'), 2,
+                                           6,
+                                           weather_kml.replace('.kml', '') + '_indexer_3.txt', southWest, northEast,
+                                           gridLen, 3)
+    # 修改索引文件格式
+    change_weather_format(weather_kml.replace('.kml', '') + '_indexer.txt',
+                              weather_kml.replace('.kml', '') + '_indexer_1.txt')
+    # 天气影响区域网格填充
+    fill_weather_blank_grids(weather_kml.replace('.kml', '') + '_indexer_1.txt',
+                                 mid_mif_dic, index_3_dic,
+                                 weather_kml.replace('.kml', '') + '_indexer_fill.txt')
+
+    '''
     print('start-time', time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
     starttime = datetime.datetime.now()
     # 从region kml文件生成 mid,mif文件
