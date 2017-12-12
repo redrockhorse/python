@@ -10,6 +10,7 @@ import logging
 logging.basicConfig(level = logging.INFO)
 
 import math
+import collections
 
 
 from .import midmif_supporter as msup
@@ -94,8 +95,8 @@ def get_grid_of_point(linkid, updir, sublink_up_index, sublink_down_index, grid_
 
     global link_id_type
 
-    if grid_cx >= 0 and grid_cx <= max_grid_cx and grid_cy >= 0 and grid_cy <= max_grid_cy:
-
+    #if grid_cx >= 0 and grid_cx <= max_grid_cx and grid_cy >= 0 and grid_cy <= max_grid_cy:
+    if True:
         grid_key = '{:d}'.format(grid_cx) + '\t{:d}'.format(grid_cy)
 
         if updir == 1:
@@ -138,7 +139,7 @@ def get_grid_of_point(linkid, updir, sublink_up_index, sublink_down_index, grid_
             if grid_key in dict_links_by_grid.keys():
                 link_list = dict_links_by_grid[grid_key]
                 link_list.append(key1)
-
+                dict_links_by_grid[grid_key] = link_list
             else:
                 link_list = []
                 link_list.append(key1)
@@ -315,7 +316,7 @@ def grid_map(mid_path, mif_path, link_id_index, df_index, output_path):
                 + '\t{:d}'.format(max_grid_cx) + '\t{:d}'.format(max_grid_cy)
 
     output.write(title_str + '\n')
-
+    result_dic = collections.OrderedDict()
     for grid_id in sorted(dict_links_by_grid.keys()):
 
         link_list = dict_links_by_grid[grid_id]
@@ -323,13 +324,13 @@ def grid_map(mid_path, mif_path, link_id_index, df_index, output_path):
         sss = set(link_list)
 
         output.write(grid_id + '\t' + '{:d}'.format(len(sss)) + '\t')
-
+        result_dic[grid_id] = []
         for link_ss_id in sss:
             output.write(link_ss_id + '\t')
-
+            result_dic[grid_id].append(link_ss_id)
         output.write('\n')
-
     output.close()
+    return result_dic
 
 
 
