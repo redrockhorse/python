@@ -14,7 +14,7 @@ import collections
 
 # 使用时需要修改的部分
 weather_kml = 'E:\\desktop\\aaa\\2017102408.kml'
-#weather_kml = 'E:\\desktop\\aaa\\44297.kml'
+# weather_kml = 'E:\\desktop\\aaa\\44297.kml'
 link_mid = 'E:\\desktop\\aaa\\FCD_1000_16Q2_SN.MID'
 link_mif = 'E:\\desktop\\aaa\\FCD_1000_16Q2_SN.MIF'
 southWest = [69.385045, 16.720233]
@@ -219,7 +219,7 @@ def getCrossPoint(l1, l2):
     getLinePara(l2);
     d = l1.a * l2.b - l2.a * l1.b
     if d == 0.0:
-        return  None
+        return None
     p = Point()
     p.x = (l1.b * l2.c - l2.b * l1.c) * 1.0 / d
     p.y = (l1.c * l2.a - l2.c * l1.a) * 1.0 / d
@@ -245,7 +245,9 @@ def fill_weather_blank_grids(input_path, mid_mif_dic, index_3_dic, output_path):
             iarr = getInterrupted(cys)
             y_cross_dic = collections.OrderedDict()
             point_no_cross_dic = collections.OrderedDict()
-            cross_y_list =[]
+            cross_y_list = []
+            # if cx == '4079':
+            #     print(cys)
             for i in range(len(cys) - 1):
                 y = cys[i]
                 plink_list = index_3_dic[cx + '\t' + str(y)]
@@ -268,22 +270,29 @@ def fill_weather_blank_grids(input_path, mid_mif_dic, index_3_dic, output_path):
                             point_m_1 = Point(cx_mid_line, y1)
                             line_m = Line(point_m_0, point_m_1)
                             cross_p = getCrossPoint(line_c, line_m)
+                            # if cx == '4079' and y == 106:
+                            #     print('4076,106',cross_p)
                             if cross_p is not None:
-                                cross_y = int((cross_p.y - southWest[1])/gridLen)
+                                cross_y = int((cross_p.y - southWest[1]) / gridLen)
                                 point_no_cross_dic[point_no] = cross_y
-                                #cross_y_list.append(cross_y)
+                            else:
+                                if (i > 0 and cys[i] - cys[i - 1] > 1) or i == 0:  # 处理平行的情况
+                                    point_no_cross_dic[point_no] = cys[i]
                 if i == 0:
                     y_cross_dic[y] = y_cross
                 else:
-                    y_cross_dic[y] = y_cross_dic[cys[i-1]] + y_cross
+                    y_cross_dic[y] = y_cross_dic[cys[i - 1]] + y_cross
             for key in point_no_cross_dic:
                 cross_y_list.append(point_no_cross_dic[key])
             for i in range(len(cys) - 1):
                 y = cys[i]
-                if i==0:
+                if i == 0:
                     y_cross_dic[y] = cross_y_list.count(y)
                 else:
-                    y_cross_dic[y] = y_cross_dic[cys[i-1]] + cross_y_list.count(y)
+                    y_cross_dic[y] = y_cross_dic[cys[i - 1]] + cross_y_list.count(y)
+            # if cx == '4079':
+            #     print(point_no_cross_dic)
+            #     print(y_cross_dic)
             for iy in iarr:
                 if y_cross_dic[iy[0]] % 2 != 0:
                     ys_tmp = cys.index(iy[0]) + 1
@@ -295,8 +304,6 @@ def fill_weather_blank_grids(input_path, mid_mif_dic, index_3_dic, output_path):
             output.write('\n')
     f.close()
     output.close()
-
-
 
 
 # 读取路网索引文件.
