@@ -25,7 +25,7 @@ u_l_d = 10.00
 upper_w = 0.8
 lower_w = 1.2
 
-output_file = open("E:\\1579\\\lianghua\\ouguan20171130_1.txt", "w+")
+output_file = open("E:\\1579\\\lianghua\\ouguan20180121_01.txt", "w+")
 
 
 class TInfo:

@@ -13,10 +13,10 @@ import datetime
 import collections
 
 # 使用时需要修改的部分
-weather_kml = 'E:\\desktop\\aaa\\2017102408.kml'
+weather_kml = 'E:\\ctfo\\ctfodayfile\\201712\天气匹配路链\\aaa\\2017102408.kml'
 # weather_kml = 'E:\\desktop\\aaa\\44297.kml'
-link_mid = 'E:\\desktop\\aaa\\FCD_1000_16Q2_SN.MID'
-link_mif = 'E:\\desktop\\aaa\\FCD_1000_16Q2_SN.MIF'
+link_mid = 'E:\\ctfo\\ctfodayfile\\201712\天气匹配路链\\aaa\\FCD_1000_16Q2_SN.MID'
+link_mif = 'E:\\ctfo\\ctfodayfile\\201712\天气匹配路链\\aaa\\FCD_1000_16Q2_SN.MIF'
 southWest = [69.385045, 16.720233]
 northEast = [136.457205, 54.046209]
 gridLen = 0.01  # 网格边长
@@ -34,7 +34,8 @@ def removeInnerLine(line):
             rline = linePoints.copy()
             rline.reverse()
             p = next(it)
-            if p != start_point and p != end_point and linePoints.count(p) > 1:
+            p_2 = next(it)
+            if p != start_point and p != end_point and linePoints.count(p) > 1 and linePoints.count(p_2) > 1:
                 first_index = linePoints.index(p)
                 last_index = rline.index(p)
                 distance = lineLength - last_index - 1 - first_index

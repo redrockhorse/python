@@ -9,10 +9,10 @@ import httplib2
 import re
 import random
 import time
-import MySQLdb
+import pymysql
 import datetime
 
-conn=MySQLdb.connect(host='127.0.0.1',user='root',passwd='Qd@#$mo658',db='jc',port=3306,charset='utf8')
+conn=pymysql.connect(host='127.0.0.1',user='root',passwd='Qd@#$mo658',db='jc',port=3306,charset='utf8')
 cur = conn.cursor()
 num_pattern= re.compile(r'\d*')
 
@@ -224,6 +224,7 @@ if __name__=="__main__":
             row=results[0]
             if(len(row)>0):
                 mindate=row[0]
+                mindate = datetime.strptime('2017-12-25', "%Y-%m-%d-%H")
                 if mindate != None:
                     for i in range(366):
                         hisdate = mindate - datetime.timedelta(days=i)

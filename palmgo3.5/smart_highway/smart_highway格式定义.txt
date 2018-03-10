@@ -1,0 +1,68 @@
+	mesh_id = ''
+    link_id = ''
+    father_link_id = ''      # 如果多条link是共线的，那么其father_link_id是一致的.
+    fnode_id = ''
+    tnode_id = ''
+
+    df = 0
+    nr = 0
+
+    highway_code = ''           # 路线编号.
+    highway_name_degree1 = '' # 一级名称 （高速） 注意这里用简称.
+    highway_name_degree2 = '' # 二级名称（支线、联络线、出入口、互通立交 etc.）
+    highway_name_degree3 = '' # 预留.
+
+    highway_name_identify = '' # 唯一标识一条高速的名称. identify = degree1+degree2+degree3
+    highway_name_segment = ''   # 高速未全线修通前，分段的名称.
+    highway_name_other = ''     # 别名 （曾用名/融合名称）.
+
+    highway_updir = 0          # 1-上行 2-下行 3-内环（闭合圈）4-外环（闭合圈） 5- 内环（非闭合圈） 6-外环（非闭合圈） 7-进（入）城（京） 8-出城（京）
+
+    len = 0.                 # 路段长度.
+
+    trip_code = ''  # trip定义为若干条link收尾相接构成的. （如果link属于多条trip，则trip_id用"|"顺序隔开）
+    trip_type = 0  # trip类型. 1-主线 2-复线 3-支线 4-连接线 5-入口匝道 6-出口匝道 7-连通匝道 8-出口收费站所在匝道 9-入口收费站所在匝道 10-出口收费站下游匝道 11- 入口收费站上游匝道
+    trip_index = 0  # link在trip中的序号.
+
+    trip_from_code = ''  # 连通的上游trip的编码
+    trip_to_code = ''  # 连通的下游trip的编码.
+
+    city_code = ''          # 城市/区域代码. 6位数字.
+
+    bgn_stake = 0.          # 起点里程桩号.
+    end_stake = 0.          # 终点里程桩号.
+
+    point_poi_name = ''     # 点POI名称（用于事件录入用）
+    point_poi_type = 0      # 点POI类型. 1- 收费站 2-服务区 3-桥梁 4-隧道 5-
+
+    #### 以下为区域POI.
+    area_poi_g71118 = ''     # Y/N - 属于/不属于G71118.
+    area_poi_zoo = ''        # 4大经济区：京津冀/长三角/珠三角/成渝.
+    area_poi_security = ''   # 保障区：多个用"|"隔开.
+    area_poi_province = ''   # 省（包括直辖市）名称. 注意这里用简称.
+    area_poi_city = ''       # 市(包括直辖市）名称. 注意这里用简称.
+    area_poi_county = ''     # 县（县级市)、区名称. 注意这里用简称.
+
+    area_poi_bridge = ''     # 桥梁名称.
+    area_poi_tunnle = ''     # 隧道名称.
+    area_poi_toll = ''       # 收费站名称.
+    area_poi_service = ''    # 服务区名称.
+    area_poi_flyover = ''    # 立交桥名称.
+    area_poi_scenic = ''     # 景区名称.
+
+    area_poi_airport = ''    # 机场名称.
+    area_poi_railway = ''    # 火车站.
+    area_poi_passenger = ''  # 客运站点.
+    area_poi_logistic = ''   # 物流园区.
+
+    ### 以下为跨界标识.
+    cross_zoo = ''          # 进/出[4大经济区名]，例如 进京津冀/出长三角.
+    cross_security = ''     # 进/出[保障区]: 多个用"|"隔开.
+    cross_province = ''     # [省/直辖市名称]-[省直辖市名称]. 例如：四川-重庆 重庆-四川 代表了2个方向.
+    cross_city = ''         # [市名称]-[市名称]. 例如：北京-天津
+    cross_county = ''       # [区名称]-[区名称].
+
+
+       # 新增2个要素.
+    len_of_bridge = 0.  # 桥梁长度 （如果是桥梁的话）.
+    len_of_tunnle = 0.  # 隧道长度 （如果是隧道的话）.
