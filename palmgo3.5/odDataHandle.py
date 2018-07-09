@@ -1,10 +1,13 @@
 # -*- coding: utf8 -*-
 #encoding=utf-8
+# coding=utf-8
 #By @mahy
 #email:kkkkbj@163.com
 #处理od数据
+
+
 import sqlite3
-conn = sqlite3.connect('E:\\desktop\\OD\\od.db')
+conn = sqlite3.connect('/Users/hongyanma/Downloads/2018_gdhd_od/od.db')
 c = conn.cursor()
 def createTab():
     c.execute('''CREATE TABLE OD
@@ -40,7 +43,7 @@ def formatTime(str):
      return y+"-"+m+"-"+d+" "+H+":"+M+":"+S
 
 def putDataInToTB(filename):
-    f_dir ="E:\\desktop\\OD\\"+filename+"_result.txt"
+    f_dir ="/Users/hongyanma/Downloads/2018_gdhd_od/"+filename+".txt"
     print(f_dir)
     rf = open(f_dir,'r')
     i =0
@@ -52,8 +55,8 @@ def putDataInToTB(filename):
         # usetime = data_array[5]
         # distance = data_array[6]
         if i >0:
-            startime = formatTime(data_array[7])
             endtime = formatTime(data_array[8])
+            startime = formatTime(data_array[7])
             c.execute("INSERT INTO OD (CARID,STARTLON,STARTLAT,ENDLON,ENDLAT,USETIME,DISTANCE,STARTTIME,ENDTIME) VALUES('"+data_array[0]+"',"+data_array[1]+","+data_array[2]+","+data_array[3]+","+data_array[4]+","+data_array[5]+","+ data_array[6]+",'"+startime+"','"+endtime+"')")
         i=i+1
         #print(i)
@@ -69,9 +72,9 @@ def handleData():
     # cursor = c.execute("SELECT STARTLON,STARTLAT,ENDLON,ENDLAT,STARTTIME  from OD order by STARTTIME ASC")
     # for row in cursor:
     #    print("db count = ", row[4])
-    d1 = datetime.datetime(2017,2,17,0,0,0)
+    d1 = datetime.datetime(2018,1,22,0,0,0)
     dtmp = d1
-    for i in range(160):
+    for i in range(7*24):
         d2 = dtmp +datetime.timedelta(hours=1)
         sql_time = d2.strftime("%Y-%m-%d %H:%M:%S")
         #print(sql_time)
@@ -79,7 +82,7 @@ def handleData():
         file_time = dtmp.strftime("%Y%m%d%H")
         #print(file_time)
         cursor = c.execute("SELECT STARTLON,STARTLAT,ENDLON,ENDLAT,STARTTIME  from OD where STARTTIME>='"+dtmp.strftime("%Y-%m-%d %H:%M:%S")+"' and STARTTIME<'"+sql_time+"'" )
-        wf = open("E:\\desktop\\OD\\result\\"+file_time+".json","w+")
+        wf = open("/Users/hongyanma/Downloads/2018_gdhd_od/"+file_time+".json","w+")
         json_str ="{\"data\":["
         j = 0
         values = cursor.fetchall()
@@ -102,11 +105,13 @@ def handleData():
 
 if __name__ =="__main__":
     #createTab()
-    # putDataInToTB('20170217')
-    # putDataInToTB('20170218')
-    # putDataInToTB('20170219')
-    # putDataInToTB('20170220')
-    # putDataInToTB('20170221')
+    putDataInToTB('all')
+    # putDataInToTB('20180123')
+    # putDataInToTB('20180124')
+    # putDataInToTB('20180125')
+    # putDataInToTB('20180126')
+    # putDataInToTB('20180127')
+    # putDataInToTB('20180128')
     handleData()
     #cursor.close()
     conn.close()
