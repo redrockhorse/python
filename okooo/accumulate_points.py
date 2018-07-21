@@ -2,13 +2,12 @@
 from __future__ import division
 __author__ = 'mahy'
 
-import MySQLdb
+import pymysql
 import  numpy as np
 import sys
-reload(sys)
-sys.setdefaultencoding('utf8')
 
-conn_g=MySQLdb.connect(host='127.0.0.1',user='root',passwd='Qd@#$mo658',db='jc',port=3318,charset='utf8')
+
+conn_g=pymysql.connect(host='127.0.0.1',user='root',passwd='Qd@#$mo658',db='jc',port=3306,charset='utf8')
 cur_g = conn_g.cursor()
 
 last_game_time = {}
@@ -17,7 +16,7 @@ points = {}
 #意甲,法甲,西甲,英超,德甲,欧冠,欧冠杯
 lg_dic={'意甲':1,'法甲':1,'西甲':1,'英超':1,'德甲':1,'欧冠':1,'欧冠杯':1}
 #g_sql ="select gametime,lg,homesxname,awaysxname,hscore,ascore from tb_rate_power_rs where resulenum is not null and (homesxname in  ('安德莱','拜  仁','巴塞尔','曼  联','贝西克','波尔图','多  特','热  刺','卡拉巴','切尔西','里斯本','奥林匹','马竞技','罗  马','曼  城','费耶诺','摩纳哥','莱比锡','莫陆军','本菲卡','莫斯巴','马里博','那不勒','矿  工','日尔曼','凯尔特','塞维利','利物浦','希腊人','皇  马','尤  文','巴  萨') or awaysxname in  ('安德莱','拜  仁','巴塞尔','曼  联','贝西克','波尔图','多  特','热  刺','卡拉巴','切尔西','里斯本','奥林匹','马竞技','罗  马','曼  城','费耶诺','摩纳哥','莱比锡','莫陆军','本菲卡','莫斯巴','马里博','那不勒','矿  工','日尔曼','凯尔特','塞维利','利物浦','希腊人','皇  马','尤  文','巴  萨')) and lg != '友谊赛' order by  gametime asc; "
-g_sql ="select gametime,lg,homesxname,awaysxname,hscore,ascore from tb_rate_power_rs where resulenum is not null  and lg != '友谊赛' order by  gametime asc; "
+g_sql ="select gametime,lg,homesxname,awaysxname,hscore,ascore from jc.t500 where resulenum is not null  and lg != '友谊赛' order by  gametime asc; "
 
 cur_g.execute(g_sql)
 result = cur_g.fetchall()
@@ -115,8 +114,11 @@ for vals in result:
         points[vals[3]]=ap
     #print(vals[0],vals[1],vals[2],vals[3],points[vals[2]]-hp,points[vals[3]]-ap,h_fatigue,a_fatigue,vals[4],vals[5])
     line = vals[0].strftime("%Y-%m-%d %H:%M:%S")+','+vals[1]+','+vals[2]+','+vals[3]+','+str(points[vals[2]]-hp)+','+str(points[vals[3]]-ap)+','+str(h_fatigue)+','+str(a_fatigue)+','+str(vals[4])+','+str(vals[5])
+    updatesql='update jc.t500 set h_points='+str('%.2f' %(points[vals[2]]-hp))+', a_points='+str('%.2f' %(points[vals[3]]-ap))+', h_fatigue='+str('%.2f' % h_fatigue)+', a_fatigue='+str('%.2f' %a_fatigue)+' where gametime="'+vals[0].strftime("%Y-%m-%d %H:%M:%S")+'" and lg="'+vals[1]+'" and homesxname="'+vals[2]+'" and awaysxname="'+vals[3]+'"'
+    cur_g.execute(updatesql)
+    conn_g.commit()
     #print(line)
-    output_file.write(line+'\n')
+    #output_file.write(line+'\n')
 
 
 
