@@ -39,8 +39,15 @@ for row in results:
     addressComponent=result['result']['addressComponent']
     update_sql ='update td_awp_source_data set province=%s ,city=%s,district=%s,town=%s,street=%s where Longitude=%s and Latitude=%s'
     cursor.execute(update_sql,(addressComponent['province'],addressComponent['city'],addressComponent['district'],addressComponent['town'],addressComponent['street'],str(row['Longitude']),str(row['Latitude'])))
+    '''
     if i%100==0:
         print(i,len(results))
         conn.commit()
         cursor.execute(sql)
         results = cursor.fetchall()
+    '''
+    print(i,len(results))
+    conn.commit()
+    cursor.execute(sql)
+    results = cursor.fetchall()
+    #conn.commit()

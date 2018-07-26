@@ -66,7 +66,7 @@ for m in monthlist:
                     aqiInfo=tq['aqiInfo']
                 if 'aqiLevel' in tq:
                     aqiLevel=tq['aqiLevel']
-                update_sql="update td_awp_source_data set bWendu=%s,yWendu=%s,tianqi=%s,fengxiang=%s,fengli=%s,aqi=%s,aqiInfo=%s,aqiLevel=%s where Case_Time>=%s and Case_Time<=%s and district=%s"
+                update_sql="update td_awp_source_data set bWendu=%s,yWendu=%s,tianqi=%s,fengxiang=%s,fengli=%s,aqi=%s,aqiInfo=%s,aqiLevel=%s where Case_Time>=%s and Case_Time<=%s and district=%s and tianqi is null"
                 cursor.execute(update_sql,(tq['bWendu'],tq['yWendu'],tq['tianqi'],tq['fengxiang'],tq['fengli'],aqi,aqiInfo,aqiLevel,tq['ymd']+' 00:00:00',tq['ymd']+' 23:59:59',a))
             conn.commit()
 
