@@ -115,8 +115,8 @@ def strategy(game,money):
         #money_ret = 200 * maxop
     else:#钱数少于0进入破产清算流程
         pass
-    print(game)
-    print(money,op,money_buy,money_ret,rs,rs_rq,zhong_flag)
+    #print(game)
+    #print(money,op,money_buy,money_ret,rs,rs_rq,zhong_flag)
     return op,money_buy,money_ret
 
 
