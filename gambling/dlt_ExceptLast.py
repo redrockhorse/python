@@ -31,9 +31,7 @@ for i in range(1, 13):
 import random
 import collections
 import numpy as np
-
 import copy
-
 
 def sampleByP(narr, parr, n):
     rarr = []
