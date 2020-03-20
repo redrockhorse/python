@@ -8,4 +8,5 @@ with open(dir+"province.json","r") as pfile:
     pcode = json.load(pfile)
 #print(pcode)
 for item in pcode['data']:
-    print('<MenuItem name="'+item['code']+'">'+item['name']+'</MenuItem>')
+    # print('<MenuItem name="'+item['code']+'">'+item['name']+'</MenuItem>')
+    print('"'+item['name']+'":'+item['code']+',')
