@@ -195,7 +195,7 @@ def wgs84_to_bd09(lon, lat):
 def savaBaiduMapAsPng(lon, lat, zoom, waittime):
     lon_int_str = str(int(round(float(lon), 6) * 100000))
     lat_int_str = str(int(round(float(lat), 6) * 100000))
-    zoom = str(int(zoom) + 1)  # 百度的zoom要在搜狗的基础上+1
+    zoom = str(int(zoom) + 1.5)  # 百度的zoom要在搜狗的基础上+1
     driver = webdriver.Chrome(chromedriver)
     driver.maximize_window()
     driver.implicitly_wait(100)
@@ -204,7 +204,7 @@ def savaBaiduMapAsPng(lon, lat, zoom, waittime):
     time.sleep(int(waittime))
     try:
         EC.presence_of_element_located((By.XPATH, '//canvas'))
-        with open('/Users/hongyanma/gitspace/python/python/palmgo3.5/cleanbaidumap.js', 'r', encoding='utf8') as fr:
+        with open('cleanbaidumap.js', 'r', encoding='utf8') as fr:
             js_str = fr.read()
             driver.execute_script(js_str)
         driver.save_screenshot('/Users/hongyanma/Desktop/mapcompare/baidumap.png')
@@ -223,11 +223,11 @@ def savaSouGoMapAsPng(lon, lat, zoom, waittime):
     time.sleep(int(waittime))
     try:
         EC.presence_of_element_located((By.XPATH, '//*[id=maparea]'))
-        with open('/Users/hongyanma/gitspace/python/python/palmgo3.5/cleansogoumap.js', 'r', encoding='utf8') as fr:
+        with open('cleansogoumap.js', 'r', encoding='utf8') as fr:
             js_str = fr.read()
             driver.execute_script(js_str)
         time.sleep(int(waittime))
-        driver.save_screenshot('/Users/hongyanma/Desktop/mapcompare/sogoumap.png')
+        driver.save_screenshot('/Users/hongyanma/Desktop/mapcompare/sougoumap.png')
     finally:
         driver.quit()
 
@@ -257,25 +257,51 @@ sogou_jam_levev_1 = [[50, 90, 100], [80, 255, 255]]
 
 
 # 抽取路况线
-def extractTf(input_img, output_img):
-    img = cv2.imread(input_img)
+def extractTf(img_path):
+    result_img = []
+    dark_red = np.uint8([[[163, 0, 4]]])
+    hsv_dark_red = cv2.cvtColor(dark_red, cv2.COLOR_BGR2HSV)
+    print(hsv_dark_red)
+
+    red = np.uint8([[[233, 0, 15]]])
+    hsv_red = cv2.cvtColor(red, cv2.COLOR_BGR2HSV)
+    print(hsv_red)
+
+    yellow = np.uint8([[[253, 250, 56]]])
+    hsv_yellow = cv2.cvtColor(yellow, cv2.COLOR_BGR2HSV)
+    print(hsv_yellow)
+
+    green = np.uint8([[[68, 204, 106]]])
+    hsv_green = cv2.cvtColor(green, cv2.COLOR_BGR2HSV)
+    print(hsv_green)
+
+    img = cv2.imread('/Users/hongyanma/Desktop/mapcompare/sougoumap.png')
+    # img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
+    # lower_darkred = np.array([0, 120, 46])
+    # upper_darkred = np.array([10, 255, 200])
     lower_darkred = np.array(baidu_jam_levev_4[0])
     upper_darkred = np.array(baidu_jam_levev_4[1])
     mask = cv2.inRange(hsv, lower_darkred, upper_darkred)
     darkred_things = cv2.bitwise_and(img, img, mask=mask)
 
+    lower_red = np.array([0, 100, 46])
+    upper_red = np.array([10, 200, 255])
     lower_red = np.array(baidu_jam_levev_3[0])
     upper_red = np.array(baidu_jam_levev_3[1])
     mask = cv2.inRange(hsv, lower_red, upper_red)
     red_things = cv2.bitwise_and(img, img, mask=mask)
 
+    lower_yellow = np.array([11, 43, 46])
+    upper_yellow = np.array([34, 255, 255])
     lower_yellow = np.array(sogou_jam_levev_2[0])
     upper_yellow = np.array(sogou_jam_levev_2[1])
     mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
     yellow_things = cv2.bitwise_and(img, img, mask=mask)
 
+    lower_green = np.array([35, 43, 46])
+    upper_green = np.array([77, 255, 255])
     lower_green = np.array(sogou_jam_levev_1[0])
     upper_green = np.array(sogou_jam_levev_1[1])
     mask = cv2.inRange(hsv, lower_green, upper_green)
@@ -284,102 +310,97 @@ def extractTf(input_img, output_img):
     tf_img = cv2.bitwise_or(green_things, yellow_things)
     tf_img = cv2.bitwise_or(red_things, tf_img)
     tf_img = cv2.bitwise_or(darkred_things, tf_img)
-
-    cv2.imwrite(output_img, tf_img)
+    # cv2.imshow('source', cv2.cvtColor(tf_img, cv2.COLOR_RGB2BGR))
+    # cv2.waitKey(0)
     cv2.namedWindow("tfimge", 0);
     cv2.resizeWindow("tfimge", 640, 480);
     cv2.imshow("tfimge", tf_img)
     cv2.waitKey(0)
+    cv2.imwrite('/Users/hongyanma/Desktop/mapcompare/sogou_tf.png',tf_img)
+    # cv2.imshow('source', cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+    # cv2.waitKey(0)
+    # cv2.imshow('source', cv2.cvtColor(darkred_things, cv2.COLOR_RGB2BGR))
+    # cv2.waitKey(0)
+    # cv2.imshow('source', cv2.cvtColor(red_things, cv2.COLOR_RGB2BGR))
+    # cv2.waitKey(0)
+    # cv2.imshow('source', cv2.cvtColor(yellow_things, cv2.COLOR_RGB2BGR))
+    # cv2.waitKey(0)
+    # cv2.imshow('source', cv2.cvtColor(green_things, cv2.COLOR_RGB2BGR))
+    # cv2.waitKey(0)
+
+    # result_img.append(cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+    # result_img.append(cv2.cvtColor(darkred_things, cv2.COLOR_RGB2BGR))
+    # result_img.append(cv2.cvtColor(red_things, cv2.COLOR_RGB2BGR))
+    # result_img.append(cv2.cvtColor(yellow_things, cv2.COLOR_RGB2BGR))
+    # result_img.append(cv2.cvtColor(green_things, cv2.COLOR_RGB2BGR))
+    #
+    # plt.figure(1)
+    # i_c = len(result_img)
+    # for i in range(i_c):
+    #     plt.subplot(1, i_c, i + 1)
+    #     plt.imshow(result_img[i])
+    #     plt.axis('off')
+    #     plt.title('tf' + str(i), fontsize=8)
+    #     # plt.pause(1)
+    # plt.show(1)
 
 
+def hougthLinesMap():
+    img = cv2.imread('/Users/hongyanma/Desktop/mapcompare/baidumap.png')
+    # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
-def alignImages(img1, img2):
-    img1_mat = cv2.imread(img1)
-    img2_mat = cv2.imread(img2)
-    img1_gray = cv2.cvtColor(img1_mat, cv2.COLOR_BGR2GRAY)
-    img2_gray = cv2.cvtColor(img2_mat, cv2.COLOR_BGR2GRAY)
-    # keypoints1, keypoints2;descriptors1, descriptors2;
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.bitwise_not(gray)
+    cv2.imshow('soure', img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    cv2.imshow('gray', gray)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
-    keypoints1 = cv2.goodFeaturesToTrack(img1_gray, 25, 0.01, 10)
-    n = int(len(keypoints1))
-    keypoints1 = keypoints1.reshape(n, 2)
+    # cv2.imshow('gray1', gray1)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+    gray = cv2.bilateralFilter(gray, 3, 15, 75)
+    cv2.imshow('bf-gray', gray)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
-    keypoints2 = cv2.goodFeaturesToTrack(img2_gray, 25, 0.01, 10)
-    n = int(len(keypoints2))
-    keypoints2 = keypoints2.reshape(n, 2)
+    # cv2.MORPH_RECT
+    # cv2.MORPH_ELLIPSE
+    gray = cv2.erode(gray, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 3)), iterations=2)
+    # gray = cv2.dilate(gray, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 2)), iterations=2)
 
-    print('~~~~~~~~~~~~~~~~')
-    print(keypoints1)
-    print('~~~~~~~~~~~~~~~~')
-    print(keypoints2)
+    cv2.imshow('oc-gray', gray)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
-    sum_x1 = 0
-    sum_y1 = 0
-    x, y = keypoints1.shape
-    for m in range(x):
-        sum_x1 = sum_x1 + keypoints1[m][0]
-        sum_y1 = sum_y1 + keypoints1[m][1]
+    gray = cv2.convertScaleAbs(cv2.Laplacian(gray, cv2.CV_64F))
+    cv2.imshow('cv-gray', gray)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    edges = cv2.Canny(gray, 50, 150)
+    # cv2.imshow("edges", edges)
+    # lines = cv2.HoughLines(edges, 1, np.pi / 180, 38)
+    # for line in lines:
+    #     rho, theta = line[0]
+    #     a = np.cos(theta)
+    #     b = np.sin(theta)
+    #     x0 = a * rho
+    #     y0 = b * rho
+    #     x1 = int(x0 + 1000 * (-b))
+    #     y1 = int(y0 + 1000 * a)
+    #     x2 = int(x0 - 1000 * (-b))
+    #     y2 = int(y0 - 1000 * a)
+    #     cv2.line(img, (x1, y1), (x2, y2), (0, 255, 0), 1)
+    # cv2.imshow("houghLine", img)
 
-    sum_x2 = 0
-    sum_y2 = 0
-    x, y = keypoints2.shape
-    for n in range(x):
-        sum_x2 = sum_x2 + keypoints2[n][0]
-        sum_y2 = sum_y2 + keypoints2[n][1]
-    c1 = int((sum_x2 / n) - (sum_x1 / m))
-    c2 = int((sum_y2 / m) - (sum_y1 / m))
-    print(c1)
-    print(c2)
-    return c1, c2
+    # plt.figure()
+    cv2.imshow('edges', edges)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
-'''
-MAX_FEATURES = 100
-GOOD_MATCH_PERCENT = 0.15
-
-def alignImages(img1, img2):
-    im1 = cv2.imread(img1)
-    im2 = cv2.imread(img2)
-    img1_mat = cv2.cvtColor(im1, cv2.COLOR_BGR2GRAY)
-    img2_mat = cv2.cvtColor(im2, cv2.COLOR_BGR2GRAY)
-
-    # Detect ORB features and compute descriptors.
-    orb = cv2.ORB_create(MAX_FEATURES)
-    keypoints1, descriptors1 = orb.detectAndCompute(img1_mat, None)
-    keypoints2, descriptors2 = orb.detectAndCompute(img2_mat, None)
-
-
-    # Match features.
-    matcher = cv2.DescriptorMatcher_create(cv2.DESCRIPTOR_MATCHER_BRUTEFORCE_HAMMING)
-    matches = matcher.match(descriptors1, descriptors2, None)
-
-    # Sort matches by score
-    matches.sort(key=lambda x: x.distance, reverse=False)
-
-    # Remove not so good matches
-    numGoodMatches = int(len(matches) * GOOD_MATCH_PERCENT)
-    matches = matches[:numGoodMatches]
-
-    # Draw top matches
-    imMatches = cv2.drawMatches(im1, keypoints1, im2, keypoints2, matches, None)
-    cv2.imwrite("/Users/hongyanma/Desktop/mapcompare/matches.jpg", imMatches)
-
-    # Extract location of good matches
-    points1 = np.zeros((len(matches), 2), dtype=np.float32)
-    points2 = np.zeros((len(matches), 2), dtype=np.float32)
-
-    for i, match in enumerate(matches):
-        points1[i, :] = keypoints1[match.queryIdx].pt
-        points2[i, :] = keypoints2[match.trainIdx].pt
-
-
-    # Find homography
-    h, mask = cv2.findHomography(points1, points2, cv2.RANSAC)
-
-    # Use homography
-    height, width, channels = im2.shape
-    im1Reg = cv2.warpPerspective(im1, h, (width, height))
-    return im1Reg, h
-'''
 
 def main(argv):
     lon = argv.lon
@@ -392,7 +413,6 @@ def main(argv):
 
 
 if __name__ == '__main__':
-    main(parse_arguments(sys.argv[1:]))
-    extractTf('/Users/hongyanma/Desktop/mapcompare/baidumap.png', '/Users/hongyanma/Desktop/mapcompare/baidu_tf.png')
-    extractTf('/Users/hongyanma/Desktop/mapcompare/sogoumap.png', '/Users/hongyanma/Desktop/mapcompare/sogou_tf.png')
-    # alignImages('/Users/hongyanma/Desktop/mapcompare/sogou_tf.png', '/Users/hongyanma/Desktop/mapcompare/baidu_tf.png')
+    # main(parse_arguments(sys.argv[1:]))
+    extractTf('')
+    # hougthLinesMap()
