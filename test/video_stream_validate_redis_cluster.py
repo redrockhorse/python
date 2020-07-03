@@ -79,7 +79,7 @@ def getVideoStreamUrl(mode, cameraNum, cameraName):
     }
     try:
         r = requests.get(request_param_pre[mode]['videoStreamApi'], params=params,
-                         headers=request_param_pre[mode]['httpHeader'])
+                         headers=request_param_pre[mode]['httpHeader'], timeout=45)
 
         result = r.json()
         if result['code'] == 200:
@@ -87,10 +87,11 @@ def getVideoStreamUrl(mode, cameraNum, cameraName):
         else:
             return str(result['code']) + ';' + result['msg'], False
     except Exception as e:
+        logger.error(str(e))
         return e, False
 
 
-wsf_url = "http://hmrc.palmgo.cn/geoserver/wfs"
+wsf_url = "http://192.168.23.82:8060/geoserver/wfs"
 
 
 # 更新WFS数据
@@ -126,7 +127,7 @@ def videoStreamTestRedis(mode, cameraNum):
         error_num += 1
         return flag, message
     try:
-        r = requests.get(flv_url, stream=True)
+        r = requests.get(flv_url, stream=True, timeout=45)
         if r.status_code != 200:
             flag = False
             message = mode + ',' + cameraNum + ',' + 'video stream is not available,httpstatus:' + str(
@@ -224,11 +225,11 @@ def updateVideoStatus(mode):
     logging.info('当前进度 %s/%s' % (cpage, 'unknow'))
     total_list_num, status_data = fetchVideoStatus(mode, cpage)
     conn.set("c_" + mode + "_total", total_list_num)
-    dealPageListDataRedis(status_data, mode)
+    #dealPageListDataRedis(status_data, mode)
     totalpage = int(total_list_num / 500) + 1
     logging.info('视频总条数：%s' % total_list_num)
     logging.info('数据总页数（每页500条）%s' % totalpage)
-    while cpage < totalpage:
+    while cpage <= totalpage:
         total_list_num, status_data = fetchVideoStatus(mode, cpage)
         if total_list_num > 0:
             cpage += 1

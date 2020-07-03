@@ -9,9 +9,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 conn = None
 cursor = None
-# conn = pymysql.connect(host='127.0.0.1', user='root', passwd='Qd@#$mo658', db='jc', port=3306, charset='utf8',
-#                        cursorclass=pymysql.cursors.DictCursor)
-# cursor = conn.cursor()
+conn = pymysql.connect(host='127.0.0.1', user='root', passwd='Qd@#$mo658', db='jc', port=3306, charset='utf8',
+                       cursorclass=pymysql.cursors.DictCursor)
+cursor = conn.cursor()
 
 
 def writeFile():
@@ -23,7 +23,7 @@ def writeFile():
             content = ','.join((row['hname'],row['aname'],row['win'],row['draw'],row['lost'],row['lg'],str(row['result']),row['hg'],row['ag']))
             outputfile.write(content+'\n')
     print('write file done !')
-#writeFile()
+
 
 
 def dealDataWithOneHotEncode(usecols):
@@ -36,6 +36,24 @@ def dealDataWithOneHotEncode(usecols):
     # print(oneHotArr)
     return t2,oneHotArr
 
+'''
+def build_model():
+    model = keras.Sequential([
+      keras.layers.Dense(512, activation=tf.nn.sigmoid,
+                       input_shape=(train_data.shape[1],)),
+      keras.layers.Dense(512, activation=tf.nn.sigmoid),
+      keras.layers.Dense(1)
+    ])
+    # optimizer = tf.train.RMSPropOptimizer(0.001)
+    optimizer = tf.train.AdamOptimizer()
+    # model.compile(loss='mse',
+    #             optimizer=optimizer,
+    #             metrics=['mae'])
+    model.compile(loss='mse',
+                  optimizer=optimizer,
+                  metrics=['mae'])
+    return model
+'''
 
 def build_model():
     model = keras.Sequential([
@@ -49,11 +67,10 @@ def build_model():
     # model.compile(loss='mse',
     #             optimizer=optimizer,
     #             metrics=['mae'])
-    model.compile(loss='mae',
+    model.compile(loss='mse',
                   optimizer=optimizer,
                   metrics=['mae'])
     return model
-
 
 class PrintDot(keras.callbacks.Callback):
   def on_epoch_end(self,epoch,logs):
@@ -71,8 +88,8 @@ def plot_history(history):
     print(history.history)
     plt.plot(history.epoch, np.array(history.history['mean_absolute_error']),
            label='Train Loss')
-    plt.plot(history.epoch, np.array(history.history['val_mean_absolute_error']),
-           label = 'Val loss')
+    # plt.plot(history.epoch, np.array(history.history['val_mean_absolute_error']),
+    #        label = 'Val loss')
     plt.legend()
     plt.ylim([0, 5])
     plt.show()
@@ -95,7 +112,7 @@ def plot_history(history):
 
 
 
-EPOCHS = 100
+EPOCHS = 30
 
 if __name__ == '__main__':
     #writeFile()
@@ -146,18 +163,20 @@ if __name__ == '__main__':
     # print(X)
     # print(Y)
     # print(len(Y))
-    train_data = X[:7000]
-    test_data = X[7000:]
-    hs_train_label = Y[:7000][:, 1]
-    hs_test_label = Y[7000:][:, 1]
+    train_data = X[:10000]
+    test_data = X[10000:]
+    hs_train_label = Y[:10000][:, [0]]
+    hs_test_label = Y[10000:][:, [0]]
+    print(hs_test_label)
     # print(hs_train_label)
     #7414
 
     model = build_model()
     model.summary()
     history = model.fit(train_data, hs_train_label, epochs=EPOCHS,
-                        validation_split=0.2, verbose=0,
+                        shuffle=True,validation_split=0, verbose=1,
                         callbacks=[PrintDot()])
-    score = model.evaluate(test_data, hs_test_label, batch_size=8)
-    print(score)
-    plot_history(history)
+    loss, acc = model.evaluate(test_data, hs_test_label, batch_size=8,verbose=1)
+    print(loss)
+    print(acc)
+    # plot_history(history)

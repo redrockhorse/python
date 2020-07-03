@@ -4,34 +4,29 @@
 __author__ = 'mahy'
 
 import random
-
-t = []
-for n in range(1000):
-    p = random.uniform(0, 1)
-    # print(p)
-    # x = random.randint(0, 2)
-    x = 0
-    if p > 0.9 and p < 0.98:
-        x = 1
-    if p >= 0.98:
-        x = 2
-    t.append(x)
-    # print(x)
 from collections import Counter
 
-print(Counter(t))
+# t = []
+# for n in range(1000):
+#     p = random.uniform(0, 1)
+#     x = 0
+#     if p > 0.9 and p < 0.98:
+#         x = 1
+#     if p >= 0.98:
+#         x = 2
+#     t.append(x)
+#     # print(x)
+# from collections import Counter
 
-a = []
-b = [2, 3, 4]
-c = set(a) & set(b)
-print(c)
-print(len(c))
+#print(Counter(t))
+
 
 import pymysql
 
 conn = pymysql.connect(host='127.0.0.1', user='root', passwd='Qd@#$mo658', db='jc', port=3306, charset='utf8',
                        cursorclass=pymysql.cursors.DictCursor)
 cursor = conn.cursor()
+#sql = "select *  from jc.td_ptl_ssq_data where pdate>='2016-01-01' order by pdate asc"
 sql = "select *  from jc.td_ptl_ssq_data  order by pdate asc"
 cursor.execute(sql)
 result = cursor.fetchall()
@@ -68,8 +63,8 @@ for row in result:
     lastRow.append(int(row['v6']))
     rownum += 1
 print(Counter(sampleItemCount))
-print(Counter(all))
-print(rownum)
+# print(Counter(all))
+# print(rownum)
 totalnum = rownum * 6
 
 numArr = []
@@ -82,11 +77,10 @@ print(numArr)
 print(pArr)
 import collections
 
-d1 = collections.OrderedDict()
-for i in range(len(numArr)):
-    # print(i)
-    d1[numArr[i]] = pArr[i]
-print(d1)
+# d1 = collections.OrderedDict()
+# for i in range(len(numArr)):
+#     d1[numArr[i]] = pArr[i]
+# print(d1)
 
 import numpy as np
 import copy
@@ -108,8 +102,8 @@ def sampleByP(narr, parr, n):
     return rarr
 
 
-xxx = sampleByP(numArr, pArr, 5)
-print(xxx)
+# xxx = sampleByP(numArr, pArr, 5)
+# print(xxx)
 
 orderDic = Counter(v67).most_common()
 numArr =[]

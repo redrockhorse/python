@@ -9,7 +9,7 @@ import time
 import datetime
 conn=MySQLdb.connect(host='127.0.0.1',user='root',passwd='root',db='jc',port=3306,charset='utf8')
 cur = conn.cursor()
-reload(sys)
+#reload(sys)
 sys.setdefaultencoding('utf8')
 pattern = re.compile(r'\d*-\d*-\d*')
 def getBaseInfo(url):

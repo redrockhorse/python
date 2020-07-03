@@ -1,6 +1,6 @@
 var cnode = document.querySelector("canvas");
 function r(cnode){
-    if (cnode.nodeName !== 'BODY'){
+    if (cnode && cnode.nodeName !== 'BODY'){
     var cparent = cnode.parentNode;
     var children = cparent.childNodes;
     for (var i=0;i<children.length;i++){

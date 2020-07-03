@@ -10,10 +10,10 @@ import logging
 from datetime import datetime
 import time
 import redis
-
+import sys
 from redis import ConnectionPool
 
-POOL = ConnectionPool(host='127.0.0.1', port=6379, max_connections=500, decode_responses=True)
+POOL = ConnectionPool(host='127.0.0.1', port=6379, max_connections=100, decode_responses=True)
 conn = redis.Redis(connection_pool=POOL)
 # 采用redis hashmap存储视频状态
 # key= 'camera_'+cameraNum
@@ -21,7 +21,7 @@ conn = redis.Redis(connection_pool=POOL)
 #   onlineStatus:0不在线 1在线 2异常;我们检查状态为1的,如果可用更新为11，不可用更新为10
 #   updateTime: 更新时间
 #   reason: 不可用的原因
-#   mode: 0生产 1测试
+#   mode: PRO生产 TEST测试
 
 key_prefix = 'camera_'
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -124,6 +124,7 @@ def videoStreamTestRedis(mode, cameraNum):
         error_num += 1
         return flag, message
     try:
+        print(flv_url)
         r = requests.get(flv_url, stream=True)
         if r.status_code != 200:
             flag = False
@@ -236,15 +237,46 @@ def updateVideoStatus(mode):
         logging.info('当前进度 %s/%s' % (cpage, totalpage))
 
 
+
+count_dic ={}
+count_dic['0']=0
+count_dic['1']=0
+count_dic['2']=0
+def countVideoStatus(mode):
+    cpage = 1
+    logging.info('当前模式:' + mode)
+    logging.info('当前进度 %s/%s' % (cpage, 'unknow'))
+    total_list_num, status_data = fetchVideoStatus(mode, cpage)
+    count_dic['total_list_num'] = total_list_num
+    # for item in status_data:
+    #     onlineStatus = item['onlineStatus']
+    #     count_dic[str(onlineStatus)] +=1
+    totalpage = int(total_list_num / 500) + 1
+    logging.info('视频总条数：%s' % total_list_num)
+    logging.info('数据总页数（每页500条）%s' % totalpage)
+    while cpage <= totalpage:
+        total_list_num, status_data = fetchVideoStatus(mode, cpage)
+        if total_list_num > 0:
+            for item in status_data:
+                onlineStatus = item['onlineStatus']
+                count_dic[str(onlineStatus)] += 1
+            totalpage = int(total_list_num / 500) + 1
+            cpage += 1
+        else:
+            logging.error('获取摄像头列表失败 %s/%s' % (cpage, totalpage))
+        logging.info('当前进度 %s/%s' % (cpage, totalpage))
+    print(count_dic)
+
+
 def main(argv):
     mode = argv.mode
     # with open(argv.output_file_name, 'w+') as data_file:
     data_file = open(argv.output_file_name, 'w+')
     if mode == 'ALL':
-        updateVideoStatus('TEST', data_file)
-        updateVideoStatus('PRO', data_file)
+        updateVideoStatus('TEST')
+        updateVideoStatus('PRO')
     else:
-        updateVideoStatus(mode, data_file)
+        updateVideoStatus(mode)
 
 
 def parse_arguments(argv):
@@ -260,9 +292,11 @@ def parse_arguments(argv):
 
 
 if __name__ == '__main__':
+    countVideoStatus('PRO')
+    # main(parse_arguments(sys.argv[1:]))
     # cm = '11949D31-4D39-47C4-9767-AD62F2DFE998'
-    # updateWfsStatus(cm, 1)
-    updateVideoStatus('TEST')
+    # updateWfsStatus('271000000003000143', 1)
+    # updateVideoStatus('TEST')
     # total_list_num = conn.get("c_" + 'PRO' + "_total")
     # print(total_list_num)
     # keys = conn.scan(0, 'camera_*', 100)

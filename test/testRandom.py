@@ -4,35 +4,37 @@
 __author__ = 'mahy'
 
 import random
-
-t = []
-for n in range(1000):
-    p = random.uniform(0, 1)
-    # print(p)
-    # x = random.randint(0, 2)
-    x = 0
-    if p > 0.9 and p < 0.98:
-        x = 1
-    if p >= 0.98:
-        x = 2
-    t.append(x)
-    # print(x)
 from collections import Counter
 
-print(Counter(t))
+# t = []
+# for n in range(1000):
+#     p = random.uniform(0, 1)
+#     # print(p)
+#     # x = random.randint(0, 2)
+#     x = 0
+#     if p > 0.9 and p < 0.98:
+#         x = 1
+#     if p >= 0.98:
+#         x = 2
+#     t.append(x)
+#     # print(x)
+# from collections import Counter
+#
+# print(Counter(t))
 
-a = []
-b = [2, 3, 4]
-c = set(a) & set(b)
-print(c)
-print(len(c))
+# a = []
+# b = [2, 3, 4]
+# c = set(a) & set(b)
+# print(c)
+# print(len(c))
 
 import pymysql
 
 conn = pymysql.connect(host='127.0.0.1', user='root', passwd='Qd@#$mo658', db='jc', port=3306, charset='utf8',
                        cursorclass=pymysql.cursors.DictCursor)
 cursor = conn.cursor()
-sql = "select *  from jc.td_ptl_lt_data   order by pdate asc"
+# sql = "select *  from jc.td_ptl_lt_data where pdate>='2016-01-01' order by  pdate asc"
+sql = "select *  from jc.td_ptl_lt_data  order by  pdate asc"
 cursor.execute(sql)
 result = cursor.fetchall()
 rs = []
@@ -66,8 +68,8 @@ for row in result:
     lastRow.append(int(row['v5']))
     rownum += 1
 print(Counter(sampleItemCount))
-print(Counter(all))
-print(rownum)
+#print(Counter(all))
+#print(rownum)
 totalnum = rownum * 5
 
 numArr = []
@@ -84,7 +86,7 @@ d1 = collections.OrderedDict()
 for i in range(len(numArr)):
     # print(i)
     d1[numArr[i]] = pArr[i]
-print(d1)
+#print(d1)
 
 import numpy as np
 import copy

@@ -61,16 +61,15 @@ def getVideoStreamUrl(mode, cameraNum, cameraName):
         if result['code'] == 200:
             return result['videoRequestUrl']['flv_url'], True
         else:
-            print(str(result['code']) + ';' + result['msg'])
+            print(cameraNum+';'+str(result['code']) + ';' + result['msg'])
             return str(result['code']) + ';' + result['msg'], False
     except Exception as e:
         print(str(e))
         return e, False
 
 
-# wsf_url = "http://hmrc.palmgo.cn/geoserver/wfs"
-wsf_url = "http://192.168.23.82:8060/geoserver/wfs"
-
+wsf_url = "http://hmrc.palmgo.cn/geoserver/wfs"
+# wsf_url = "http://192.168.23.82:8060/geoserver/wfs"
 
 # 更新WFS数据
 def updateWfsStatus(cameraNum, onlineStatus):
@@ -81,32 +80,43 @@ def updateWfsStatus(cameraNum, onlineStatus):
 
 
 if __name__ == '__main__':
-    wfs_full_data = 'http://192.168.23.82:8060/geoserver/sf/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=sf:toll_bd09_line_point&maxFeatures=25000&outputFormat=application%2Fjson&bbox=30.00941270901087,10.69485909762269,150.41800606835588,69.65606727035105,EPSG:4326&_=1584580305916'
-    # wfs_full_data = 'http://hmrc.palmgo.cn/geoserver/sf/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=sf:toll_bd09_line_point&maxFeatures=25000&outputFormat=application%2Fjson&bbox=30.00941270901087,10.69485909762269,150.41800606835588,69.65606727035105,EPSG:4326&_=1584580305916'
+    # wfs_full_data = 'http://192.168.23.82:8060/geoserver/sf/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=sf:toll_bd09_line_point&maxFeatures=25000&outputFormat=application%2Fjson&bbox=30.00941270901087,10.69485909762269,150.41800606835588,69.65606727035105,EPSG:4326&_=1584580305916'
+    wfs_full_data = 'http://hmrc.palmgo.cn/geoserver/sf/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=sf:toll_bd09_line_point&maxFeatures=25000&outputFormat=application%2Fjson&bbox=30.00941270901087,10.69485909762269,150.41800606835588,69.65606727035105,EPSG:4326&_=1584580305916'
 
     r = requests.get(wfs_full_data)
     jdata = r.json()
+
     # jobj = json.loads(jdata)
     features = jdata['features']
     i = 0
     t = 0
     for ft in features:
+        mode = 'PRO'
+        if int(ft['properties']['online']) == 0:
+            mode = 'TEST'
         t += 1
         onlineStat = ft['properties']['onlineStat']
         cameraNum = ft['properties']['cameraNum']
         msg, flag = getVideoStreamUrl(mode, cameraNum, '')
+        print(cameraNum + '|' + str(flag))
         if int(onlineStat) == 11:
             i += 1
-            online = ft['properties']['online']
-            mode = 'PRO'
-            if int(online) == 0:
-                mode = 'TEST'
+            # online = ft['properties']['online']
+            # mode = 'PRO'
+            # if int(online) == 0:
+            #     mode = 'TEST'
             if flag is False:
                 # print(cameraNum)
                 updateWfsStatus(cameraNum, 0)
+                print('updatetrue|' + cameraNum + '|' + str(flag))
         if int(onlineStat) != 11:  # 上线
             if flag is True:
+                print('updatetrue|'+cameraNum + '|' + str(flag))
                 updateWfsStatus(cameraNum, 11)
-
+                # print(cameraNum+':'+'setonline')
     print(i)
     print(t)
+    # msg, flag = getVideoStreamUrl('TEST', '0198FA7B-4D69-4B24-AD39-E7A817DB0AEA', '')
+    # print(msg)
+    # print(flag)
+    # updateWfsStatus('0198FA7B-4D69-4B24-AD39-E7A817DB0AEA', 11)

@@ -9,9 +9,7 @@ import threading
 import logging
 from datetime import datetime
 import time
-import redis
 import sys
-from redis import ConnectionPool
 from rediscluster import RedisCluster
 redis_nodes = [{"host":"192.168.23.90","port":"7001","database":2},{"host":"192.168.23.82","port":"7001","database":2}]
 #POOL = ConnectionPool(host='127.0.0.1', port=6379, max_connections=500, decode_responses=True)
@@ -129,6 +127,7 @@ def videoStreamTestRedis(mode, cameraNum):
     try:
         r = requests.get(flv_url, stream=True, timeout=45)
         if r.status_code != 200:
+            r.close()
             flag = False
             message = mode + ',' + cameraNum + ',' + 'video stream is not available,httpstatus:' + str(
                 r.status_code)
@@ -143,6 +142,7 @@ def videoStreamTestRedis(mode, cameraNum):
             error_num += 1
             return flag, message
         else:
+            r.close()
             onlineStatus = 11
             conn.hset(key_str, 'onlineStatus', onlineStatus)
             conn.hset(key_str, 'updateTime', time.time())
