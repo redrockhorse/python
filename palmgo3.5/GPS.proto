@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package gps;
+
+
+message GpsList{
+
+	repeated bytes gps =1 ;
+
+}
+
+message SourceMap{
+	map<string, GpsList> source = 1;
+}
+
+message GpsMap {
+
+    map<int32, SourceMap > gpsinfo = 1;
+
+    int32 carNum = 2;
+
+    int32 gpsNum = 3;
+
+}
+
