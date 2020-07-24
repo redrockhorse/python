@@ -160,7 +160,7 @@ conn = pymysql.connect(host='127.0.0.1', user='root', passwd='Qd@#$mo658', db='j
 cursor = conn.cursor()
 cursor_lt = conn.cursor()
 
-sql = "select *  from jc.td_ptl_lt_data where pdate>'2018-02-27'  order by pdate asc"
+sql = "select *  from jc.td_ptl_ssq_data where pdate>'2018-02-27'  order by pdate asc"
 cursor.execute(sql)
 result = cursor.fetchall()
 rs = []
@@ -206,7 +206,7 @@ xlen = len(train_x)
 netWork.compile(optimizer=tf.keras.optimizers.Adam(0.001), loss=tf.keras.losses.categorical_crossentropy)
 print(train_x.shape)
 print(train_y.shape)
-history = netWork.fit(train_x.reshape(xlen,49), train_y, steps_per_epoch=5, epochs=57, validation_split=0.1)
+history = netWork.fit(train_x.reshape(xlen,49), train_y, steps_per_epoch=1, epochs=57, validation_split=0.1)
 print(history.history['loss'][-1])
 end_loss = history.history['loss'][-1]
 # while end_loss > 200:

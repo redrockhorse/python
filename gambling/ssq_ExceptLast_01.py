@@ -3,110 +3,158 @@
 # lbp feature extraction
 __author__ = 'mahy'
 import pymysql
+import numpy as np
+import tensorflow as tf
+
 conn = pymysql.connect(host='127.0.0.1', user='root', passwd='Qd@#$mo658', db='jc', port=3306, charset='utf8',
                        cursorclass=pymysql.cursors.DictCursor)
 cursor = conn.cursor()
-sql = "select *  from jc.td_ptl_ssq_data   order by pdate desc limit 1"
+
+rs = []
+max_arr = []
+min_arr = []
+avg_arr = []
+sql = "select max(v1),max(v2),max(v3),max(v4),max(v5),max(v6),max(v7) from td_ptl_ssq_data"
 cursor.execute(sql)
 result = cursor.fetchall()
-rs = []
 for row in result:
-    print(row)
-    rs.append(int(row['v1']))
-    rs.append(int(row['v2']))
-    rs.append(int(row['v3']))
-    rs.append(int(row['v4']))
-    rs.append(int(row['v5']))
-    rs.append(int(row['v6']))
-# print(rs)
+    max_arr.append(int(row['max(v1)']))
+    max_arr.append(int(row['max(v2)']))
+    max_arr.append(int(row['max(v3)']))
+    max_arr.append(int(row['max(v4)']))
+    max_arr.append(int(row['max(v5)']))
+    max_arr.append(int(row['max(v6)']))
+    max_arr.append(int(row['max(v7)']))
+print(max_arr)
 
-l = []
-for i in range(1, 34):
-    if i not in rs:
-        l.append(i)
-# print(l)
+sql = "select min(v1),min(v2),min(v3),min(v4),min(v5),min(v6),min(v7) from td_ptl_ssq_data"
+cursor.execute(sql)
+result = cursor.fetchall()
+for row in result:
+    min_arr.append(int(row['min(v1)']))
+    min_arr.append(int(row['min(v2)']))
+    min_arr.append(int(row['min(v3)']))
+    min_arr.append(int(row['min(v4)']))
+    min_arr.append(int(row['min(v5)']))
+    min_arr.append(int(row['min(v6)']))
+    min_arr.append(int(row['min(v7)']))
+print(min_arr)
 
-b = []
-for i in range(1, 17):
-    b.append(i)
-# print(b)
+sql = "select avg(v1),avg(v2),avg(v3),avg(v4),avg(v5),avg(v6),avg(v7) from td_ptl_ssq_data"
+cursor.execute(sql)
+result = cursor.fetchall()
+for row in result:
+    avg_arr.append(float(row['avg(v1)']))
+    avg_arr.append(float(row['avg(v2)']))
+    avg_arr.append(float(row['avg(v3)']))
+    avg_arr.append(float(row['avg(v4)']))
+    avg_arr.append(float(row['avg(v5)']))
+    avg_arr.append(float(row['avg(v6)']))
+    avg_arr.append(float(row['avg(v7)']))
+print(avg_arr)
 
-import random
-import collections
-import numpy as np
-import copy
+sql = "select *  from jc.td_ptl_ssq_data   order by pdate asc"
+cursor.execute(sql)
+result = cursor.fetchall()
+for row in result:
+    tmp = []
+    tmp.append((int(row['v1']) - avg_arr[0]) / (max_arr[0] - min_arr[0]))
+    tmp.append((int(row['v2']) - avg_arr[1]) / (max_arr[1] - min_arr[1]))
+    tmp.append((int(row['v3']) - avg_arr[2]) / (max_arr[2] - min_arr[2]))
+    tmp.append((int(row['v4']) - avg_arr[3]) / (max_arr[3] - min_arr[3]))
+    tmp.append((int(row['v5']) - avg_arr[4]) / (max_arr[4] - min_arr[4]))
+    tmp.append((int(row['v6']) - avg_arr[5]) / (max_arr[5] - min_arr[5]))
+    tmp.append((int(row['v7']) - avg_arr[6]) / (max_arr[6] - min_arr[6]))
+    rs.append(tmp)
+print(rs)
 
-def sampleByP(narr, parr, n):
-    rarr = []
-    narrtemp = copy.deepcopy(narr)
-    parrtemp = copy.deepcopy(parr)
-    for i in range(n):
-        totalnum = np.sum(parrtemp)
-        p = random.uniform(0, 1)
-        x0 = 0
-        for nitem, pitem in zip(narrtemp, parrtemp):
-            x0 += pitem / totalnum
-            if p < x0:
-                rarr.append(nitem)
-                narrtemp.remove(nitem)
-                parrtemp.remove(pitem)
-                break
-    return rarr
+data = np.array(rs)
 
+n = len(data)
+train_x = []
+train_y = []
+start = 0
+end = 6
+while end < n:
+    train_x.append(data[start:end])
+    train_y.append(data[end])
+    start += 1
+    end += 1
 
-d1 = collections.OrderedDict()
-numArr = [14, 22, 1, 20, 26, 18, 32, 8, 17, 7, 6, 19, 3, 27, 13, 5, 30, 2, 12, 25, 4, 10, 11, 16, 9, 21, 23, 31, 29, 15, 28, 24, 33]
-pArr = [489, 482, 482, 476, 474, 472, 471, 465, 465, 465, 460, 456, 455, 452, 450, 448, 447, 446, 445, 442, 441, 441, 438, 438, 435, 435, 431, 428, 427, 422, 414, 409, 389]
-v67a = [12, 9, 11, 1, 16, 14, 7, 15, 13, 10, 5, 6, 3, 4, 2, 8]
-v67p = [171, 167, 165, 163, 163, 158, 155, 152, 151, 151, 151, 150, 149, 145, 143, 131]
-for i in range(len(numArr)):
-    d1[numArr[i]] = pArr[i]
+train_x = np.array(train_x)
+train_y = np.array(train_y)
 
-larr = []
-lparr = []
-carr = []
-cparr = []
+# 定义输入的是一个为长度为784的张量
+inputs = tf.keras.Input(shape=(42,), name='digits')
+# 第1层包含64个节点，采用relu激活函数
+x = tf.keras.layers.Dense(64, activation='relu', name='dense_1')(inputs)
+# 第2层包含64个节点，采用relu激活函数
+x = tf.keras.layers.Dense(64, activation='relu', name='dense_2')(x)
+# 输出层采用softmax函数进行处理，得到最终的预测结果
+outputs = tf.keras.layers.Dense(7, activation='softmax', name='predictions')(x)
+# 实例化模型
+model = tf.keras.Model(inputs=inputs, outputs=outputs)
 
-for k in d1:
-    if k in rs:
-        larr.append(k)
-        lparr.append(d1[k])
-    else:
-        carr.append(k)
-        cparr.append(d1[k])
-print('#######################################')
-print(larr)
-print(lparr)
-print(carr)
-print(cparr)
-print('#######################################')
-#{1: 1066, 0: 675, 2: 603, 3: 110, 4: 13, 5: 1}
-frarr = [1,0,2,3,4]
-frparr = [1066,675,603,110,13]
+train_x = train_x.reshape(len(train_x), 42)
+model.summary()
+print(train_y.shape)
+# train_y = tf.reshape(train_y,[train_y.shape[0],1,train_y.shape[1]])
+# print(train_y)
+print(train_y)
+train_y = tf.expand_dims(train_y, axis=2)
+print(train_y.shape)
+model.compile(optimizer=tf.keras.optimizers.Adam(0.001), loss=tf.keras.losses.categorical_crossentropy)
+model.fit(train_x, train_y,
+          batch_size=64,
+          epochs=157)
 
-for n in range(5):
-    # x = random.randint(0, 3)
-    xarr = sampleByP(frarr, frparr, 1)
-    x = xarr[0]
-    y = 6 - x
-    # rbx = random.sample(rs, x)
-    # rby = random.sample(l, y)
-    rbx = sampleByP(larr, lparr, x)
-    rby = sampleByP(carr, cparr, y)
-    result = sorted(rbx + rby)
-    result_str = ''
-    for num in result:
-        split_str = '，'
-        if result.index(num) == (len(result) - 1):
-            split_str = ' - '
-        if num < 10:
-            result_str += '0' + str(num) + split_str
-        else:
-            result_str += str(num) + split_str
-    # br = random.sample(b, 1)
-    br = sampleByP(v67a, v67p, 2)
-    if br[0] < 10:
-        result_str += '0' + str(br[0])
-    else:
-        result_str += str(br[0])
-    print(result_str)
+test_x = []
+test_x.append(data[n - 6:])
+test_x = np.array(test_x)
+test_x = test_x.reshape(1, 42)
+result = model.predict(test_x, batch_size=1)
+print(test_x)
+print(result)
+
+v1 = result[0][0] * (max_arr[0] - min_arr[0]) + avg_arr[0]
+v2 = result[0][1] * (max_arr[1] - min_arr[1]) + avg_arr[1]
+v3 = result[0][2] * (max_arr[2] - min_arr[2]) + avg_arr[2]
+v4 = result[0][3] * (max_arr[3] - min_arr[3]) + avg_arr[3]
+v5 = result[0][4] * (max_arr[4] - min_arr[4]) + avg_arr[4]
+v6 = result[0][5] * (max_arr[5] - min_arr[5]) + avg_arr[5]
+v7 = result[0][6] * (max_arr[6] - min_arr[6]) + avg_arr[6]
+print(str(int(v1)) + ',' + str(int(v2)) + ',' + str(int(v3)) + ',' + str(int(v4)) + ',' + str(int(v5)) + ',' + str(
+    int(v6)) + '-' + str(int(v7)))
+
+'''
+x_train = train_x.reshape((-1, 6, 7, 1))
+model = tf.keras.Sequential()
+model.add(.layers.Conv2D(input_shape=(x_train.shape[1], x_train.shape[2], x_train.shape[3]),
+                                 filters=32, kernel_size=(3, 3), strides=(1, 1), padding='valid',
+                                 activation='relu'))
+model.add(tf.keras.layers.MaxPool2D(pool_size=(2, 2)))
+model.add(tf.keras.layers.Flatten())
+model.add(tf.keras.layers.Dense(32, activation='relu'))
+# 分类层
+model.add(tf.keras.layers.Dense(7, activation='softmax'))
+model.compile(optimizer=tf.keras.optimizers.Adam(0.001),
+              loss=tf.keras.losses.categorical_crossentropy,
+              metrics=[tf.keras.metrics.categorical_accuracy])
+history = model.fit(x_train, train_y, batch_size=64, epochs=157, validation_split=0.1)
+
+test_x = []
+test_x.append(data[n - 6:])
+test_x = np.array(test_x).reshape((-1, 6, 7, 1))
+result = model.predict(test_x, batch_size=1)
+print(test_x)
+print(result)
+
+v1= result[0][0]*(max_arr[0]-min_arr[0])+min_arr[0]
+v2= result[0][1]*(max_arr[1]-min_arr[1])+min_arr[1]
+v3= result[0][2]*(max_arr[2]-min_arr[2])+min_arr[2]
+v4= result[0][3]*(max_arr[3]-min_arr[3])+min_arr[3]
+v5= result[0][4]*(max_arr[4]-min_arr[4])+min_arr[4]
+v6= result[0][5]*(max_arr[5]-min_arr[5])+min_arr[5]
+v7= result[0][6]*(max_arr[6]-min_arr[6])+min_arr[6]
+print(str(int(v1))+','+str(int(v2))+','+str(int(v3))+','+str(int(v4))+','+str(int(v5))+','+str(int(v6))+'-'+str(int(v7)))
+'''
