@@ -129,6 +129,7 @@ if __name__ == '__main__':
             getGpsFromZipfile(zipFilePath + '/' + filename)
     '''
 
+
     # getGpsFromZipfile('/Users/hongyanma/Downloads/pb/20200617/20200617_288.zip')
     #
     # r.set('food', 'beef', px=3)
@@ -166,8 +167,9 @@ if __name__ == '__main__':
             # print(','.join(trip_arr))
             tripstr = ','.join(trip_arr)
             insertSql = 'INSERT INTO public.td_ptl_taxi_gps_bj_20200617 ("carId", trip) VALUES (\'' + carId + '\',ST_GeomFromText(\'LINESTRING(' + tripstr[:-1] + ')\'));'
-            cursor.execute(insertSql)
-            conn.commit()
+            print(insertSql)
+            # cursor.execute(insertSql)
+            # conn.commit()
 
         # if len(trip) > 10:
         #     tripstr = ','.join(trip)

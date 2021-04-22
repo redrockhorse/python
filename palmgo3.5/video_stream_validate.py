@@ -170,7 +170,6 @@ def doValidate(mode, data_file):
 
 def main(argv):
     mode = argv.mode
-    # with open(argv.output_file_name, 'w+') as data_file:
     data_file = open(argv.output_file_name, 'w+')
     if mode == 'ALL':
         doValidate('TEST', data_file)

@@ -5,7 +5,7 @@
 #无头浏览器测试
 
 from selenium import webdriver
-chromedriver = '/Users/hongyanma/Downloads/chromedriver83'
+chromedriver = '/Users/hongyanma/Desktop/chromedriver'
 import time
 # from selenium.webdriver.chrome.options import Options
 
